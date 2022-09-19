@@ -28,16 +28,30 @@
  *  @version            0.2.1
  */
 
+#pragma once
+
 #include "ofMain.h"
-#include "ofApp.h"
-#include "ofAppGlutWindow.h"
+#include "ofxCsv.h"
 
-int main(){
+class ofApp : public ofBaseApp{
 
-	ofSetupOpenGL(1024, 768, OF_WINDOW); // <-------- setup the GL context
+	public:
+		void setup();
+		void update();
+		void draw();
 
-	// this kicks off the running of my app
-	// can be OF_WINDOW or OF_FULLSCREEN
-	// pass in width and height too:
-	ofRunApp(new ofApp());
-}
+		void keyPressed  (int key);
+		void keyReleased(int key);
+		void mouseMoved(int x, int y );
+		void mouseDragged(int x, int y, int button);
+		void mousePressed(int x, int y, int button);
+		void mouseReleased(int x, int y, int button);
+		void windowResized(int w, int h);
+		void dragEvent(ofDragInfo dragInfo);
+		void gotMessage(ofMessage msg);
+	
+		ofxCsv csv;
+		ofxCsv csvRecorder;
+	
+		bool recordingMouse;
+};

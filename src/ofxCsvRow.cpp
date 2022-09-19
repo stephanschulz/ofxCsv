@@ -43,38 +43,55 @@ static std::regex s_trimRegex = std::regex("^[\\s]+|[\\s]+$");
 ofxCsvRow::ofxCsvRow() {}
 
 //--------------------------------------------------
-ofxCsvRow::ofxCsvRow(const string &cols, const string &separator) {
-	load(cols, separator);
+ofxCsvRow::ofxCsvRow(const string &cols, const vector<string> &_headerNames, const string &separator) {
+	load(cols, _headerNames, separator);
 }
 
 //--------------------------------------------------
-ofxCsvRow::ofxCsvRow(const vector<string> &cols) {
-	load(cols);
+ofxCsvRow::ofxCsvRow(const vector<string> &cols, const vector<string> &_headerNames) {
+	load(cols,_headerNames);
 }
 
 //--------------------------------------------------
 ofxCsvRow::ofxCsvRow(const ofxCsvRow &mom) {
 	data = mom.data;
+    headerNames = mom.headerNames;
+    ofLog()<<"ofxCsvRow(const ofxCsvRow &mom)";
+    makeMap();
 }
 
 //--------------------------------------------------
 ofxCsvRow& ofxCsvRow::operator=(const ofxCsvRow &mom) {
 	data = mom.data;
+    headerNames = mom.headerNames;
 	return *this;
 }
 
 // DATA IO
-
 //--------------------------------------------------
-void ofxCsvRow::load(const string &cols, const string &separator) {
+void ofxCsvRow::makeMap(){
+    for(int i=0; i<headerNames.size(); i++){
+        data_asMap[headerNames[i]] = data[i];
+    }
+    
+    ofLog()<<"makeMap headerNames "<<headerNames.size()<<" data_asMap "<<data_asMap.size();
+}
+//--------------------------------------------------
+void ofxCsvRow::load(const string &cols, const vector<string> &_headerNames, const string &separator) {
 	clear();
 	data = ofxCsvRow::fromString(cols, separator);
+    headerNames = _headerNames;
+    ofLog()<<"ofxCsvRow::load 1";
+    makeMap();
 }
 	
 //--------------------------------------------------
-void ofxCsvRow::load(const vector<string> &cols) {
+void ofxCsvRow::load(const vector<string> &cols, const vector<string> &_headerNames) {
 	clear();
 	data = cols;
+    headerNames = _headerNames;
+    ofLog()<<"ofxCsvRow::load 2";
+    makeMap();
 }
 
 //--------------------------------------------------
@@ -86,6 +103,7 @@ void ofxCsvRow::expand(int cols) {
 	while(data.size() <= cols) {
 		data.push_back("");
 	}
+  
 }
 
 //--------------------------------------------------
@@ -112,6 +130,13 @@ unsigned int ofxCsvRow::getNumCols() const {
 }
 
 //--------------------------------------------------
+int ofxCsvRow::getInt_byName(string _columnName){
+    if (data_asMap.find(_columnName) == data_asMap.end()) {
+        return 0;
+    }
+//    ofLog()<<"data_asMap[_columnName] "<<data_asMap["a"];
+    return ofToInt(data_asMap[_columnName]);
+}
 int ofxCsvRow::getInt(int col) const {
 	if(col >= data.size()) {
 		return 0;
@@ -126,6 +151,12 @@ float ofxCsvRow::getFloat(int col) const {
 	}
 	return ofToFloat(data[col]);
 }
+float ofxCsvRow::getFloat_byName(string _columnName) {
+    if (data_asMap.find(_columnName) == data_asMap.end()) {
+        return 0.0f;
+    }
+    return ofToFloat(data_asMap[_columnName]);
+}
 
 //--------------------------------------------------
 string ofxCsvRow::getString(int col) const {
@@ -134,13 +165,25 @@ string ofxCsvRow::getString(int col) const {
 	}
 	return data[col];
 }
+string ofxCsvRow::getString_byName(string _columnName){
+    if (data_asMap.find(_columnName) == data_asMap.end()) {
+        return "";
+    }
+    return data_asMap[_columnName];
+}
 
 //--------------------------------------------------
-bool ofxCsvRow::getBool(int col) const {
-	if(col >= data.size()) {
-		return false;
-	}
-	return ofToBool(data[col]);
+bool ofxCsvRow::getBool(int col) const{
+    if(col >= data.size()) {
+        return false;
+    }
+    return ofToBool(data[col]);
+}
+bool ofxCsvRow::getBool_byName(string _columnName) {
+    if (data_asMap.find(_columnName) == data_asMap.end()) {
+        return false;
+    }
+    return ofToBool(data_asMap[_columnName]);
 }
 
 // ADDING FIELDS

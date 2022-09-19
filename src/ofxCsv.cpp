@@ -75,12 +75,14 @@ bool ofxCsv::load(const string &path, const string &separator, const string &com
 	int lineCount = 0;
 	int maxCols = 0;
 	ofBuffer buffer = ofBufferFromFile(file.getAbsolutePath());
+    ofLog()<<"for(auto line : buffer.getLines()) ";
+    bool isHeader = true;
+    map<string,string> row_asMap;
 	for(auto line : buffer.getLines()) {
 		
 		// skip empty lines
 		if(line.empty()) {
 			ofLogVerbose("ofxCsv") << "Skipping empty line: " << lineCount;
-			lineCount++;
 			continue;
 		}
 		
@@ -88,19 +90,30 @@ bool ofxCsv::load(const string &path, const string &separator, const string &com
 		// TODO: only checks substring at line beginning, does not ignore whitespace
 		if(line.substr(0, commentPrefix.length()) == commentPrefix) {
 			ofLogVerbose("ofxCsv") << "Skipping comment line: " << lineCount;
-			lineCount++;
 			continue;
 		}
-		
-		// split line into separate files
-		vector<string> cols = fromRowString(line);
-		data.push_back(cols);
-	
-		// calc maxium table cols
-		if(cols.size() > maxCols) {
-			maxCols = cols.size();
-		}
-		lineCount++;
+        
+        if(isHeader == true){
+            isHeader = false;
+            headerNames = fromRowString(line);
+            ofLog()<<"isHeader headerNames "<<headerNames.size();
+            for(auto & h : headerNames){
+                if(h == "") ofLogVerbose("ofxCsv")<<"csv has empty header names !";
+            }
+        }else{
+            // split line into separate files
+            vector<string> cols = fromRowString(line);
+            data.push_back({cols,headerNames});
+            
+//            data.back().makeMap(headerName);
+//
+            // calc maxium table cols
+            if(cols.size() > maxCols) {
+                maxCols = cols.size();
+            }
+           
+        }
+        lineCount++;
 	}
 	buffer.clear();
 	
@@ -108,9 +121,19 @@ bool ofxCsv::load(const string &path, const string &separator, const string &com
 	expand(data.size(), maxCols);
 
 	ofLogVerbose("ofxCsv") << "Read " << lineCount << " lines from " << filePath;
-	ofLogVerbose("ofxCsv") << "Loaded a " << data.size() << "x" << maxCols << " table";
-	
-	return true;
+    ofLogVerbose("ofxCsv") << "Loaded a " << data.size() << "x" << maxCols << " table";
+    
+    //make map using cells from first row as map keys
+//    for(int c = 0; c < data[0].size(); c++) { //we assume all rows have same column amount thanks to expand()
+//        vector<string> temp_col;
+//        for(int i = 1; i < data.size(); i++) {
+//            temp_col.push_back(data[i][c]);
+//        }
+//        data_asMap[data[0][c]] = temp_col;
+//        ofLog()<<"data[0][c] "<<data[0][c];
+//    }
+    
+    return true;
 }
 
 //--------------------------------------------------
@@ -190,32 +213,36 @@ bool ofxCsv::createFile(const string &path) {
 /// DATA IO
 
 //--------------------------------------------------
-void ofxCsv::load(const vector<ofxCsvRow> &rows) {
+void ofxCsv::load(const vector<ofxCsvRow> &rows, const vector<string> &_headerNames) {
+    ofLog()<<"ofxCsv::load(const vector<ofxCsvRow> &rows)";
 	clear();
 	data = rows;
+    headerNames = _headerNames;
 }
 
 //--------------------------------------------------
-void ofxCsv::load(const vector<vector<string>> &rows) {
+void ofxCsv::load(const vector<vector<string>> &rows, const vector<string> &_headerNames) {
 	clear();
 	for(auto row : rows) {
-		data.push_back(ofxCsvRow(row));
+        data.push_back(ofxCsvRow({row,_headerNames}));
 	}
 }
 
 //--------------------------------------------------
 void ofxCsv::expand(int rows, int cols) {
-  rows = max(rows, 0);
-	if(data.empty()) {
-		rows = max(rows, 1);
-	}
-	cols = max(cols, 1);
-	while(data.size() < rows) {
-		data.push_back(ofxCsvRow());
-	}
-	for(auto &row : data) {
-		row.expand(cols-1);
-	}
+    
+    ofLog()<<"ofxCsv::expand(int rows, int cols)";
+    rows = max(rows, 0);
+    if(data.empty()) {
+        rows = max(rows, 1);
+    }
+    cols = max(cols, 1);
+    while(data.size() < rows) {
+        data.push_back(ofxCsvRow());
+    }
+    for(auto &row : data) {
+        row.expand(cols-1);
+    }
 }
 
 //--------------------------------------------------
@@ -248,6 +275,17 @@ ofxCsvRow& ofxCsv::getRow(int index) {
 }
 
 //--------------------------------------------------
+vector<string> ofxCsv::getColumn(int index) {
+
+    vector<string> temp_col;
+    for(int i = 0; i < getNumRows(); i++) {
+        temp_col.push_back(data[i][index]);
+    }
+    
+    return temp_col;
+}
+
+//--------------------------------------------------
 void ofxCsv::addRow(ofxCsvRow &row) {
 	data.push_back(row);
 }
@@ -261,7 +299,7 @@ void ofxCsv::addRow() {
 void ofxCsv::setRow(int index, ofxCsvRow &row) {
 	int c = getNumCols()-1;
 	if(data.empty() && index == 0) {
-		data.push_back(row);
+        data.push_back(row);
 	}
 	else {
 		expand(index+1, c);
