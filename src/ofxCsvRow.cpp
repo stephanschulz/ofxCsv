@@ -56,7 +56,7 @@ ofxCsvRow::ofxCsvRow(const vector<string> &cols, const vector<string> &_headerNa
 ofxCsvRow::ofxCsvRow(const ofxCsvRow &mom) {
 	data = mom.data;
     headerNames = mom.headerNames;
-    ofLog()<<"ofxCsvRow(const ofxCsvRow &mom)";
+//    ofLog()<<"ofxCsvRow(const ofxCsvRow &mom)";
     makeMap();
 }
 
@@ -74,14 +74,14 @@ void ofxCsvRow::makeMap(){
         data_asMap[headerNames[i]] = data[i];
     }
     
-    ofLog()<<"makeMap headerNames "<<headerNames.size()<<" data_asMap "<<data_asMap.size();
+//    ofLog()<<"makeMap headerNames "<<headerNames.size()<<" data_asMap "<<data_asMap.size();
 }
 //--------------------------------------------------
 void ofxCsvRow::load(const string &cols, const vector<string> &_headerNames, const string &separator) {
 	clear();
 	data = ofxCsvRow::fromString(cols, separator);
     headerNames = _headerNames;
-    ofLog()<<"ofxCsvRow::load 1";
+//    ofLog()<<"ofxCsvRow::load 1";
     makeMap();
 }
 	
@@ -90,7 +90,7 @@ void ofxCsvRow::load(const vector<string> &cols, const vector<string> &_headerNa
 	clear();
 	data = cols;
     headerNames = _headerNames;
-    ofLog()<<"ofxCsvRow::load 2";
+//    ofLog()<<"ofxCsvRow::load 2";
     makeMap();
 }
 
@@ -132,7 +132,9 @@ unsigned int ofxCsvRow::getNumCols() const {
 //--------------------------------------------------
 int ofxCsvRow::getInt_byName(string _columnName){
     if (data_asMap.find(_columnName) == data_asMap.end()) {
-        return 0;
+        ofLog()<<"ofxCsvRow::data_asMap.find(_columnName) == data_asMap.end()";
+        //change return 0 to return NULL since 0 could be a valid number
+        return NULL;
     }
 //    ofLog()<<"data_asMap[_columnName] "<<data_asMap["a"];
     return ofToInt(data_asMap[_columnName]);
@@ -364,6 +366,12 @@ string trimString(const string &s) {
 	return std::regex_replace(s, s_trimRegex, "$1");
 }
 
+//--------------------------------------------------
+void ofxCsvRow::toLowercase() {
+    for(string &col : data) {
+        col = ofToLower(col);
+    }
+}
 //--------------------------------------------------
 enum ParseState {
 	UnquotedField, // a regular field: hello

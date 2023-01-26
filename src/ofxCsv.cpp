@@ -96,7 +96,7 @@ bool ofxCsv::load(const string &path, const string &separator, const string &com
         if(isHeader == true){
             isHeader = false;
             headerNames = fromRowString(line);
-            ofLog()<<"isHeader headerNames "<<headerNames.size();
+            ofLogVerbose("ofxCsv")<<"isHeader headerNames "<<headerNames.size();
             for(auto & h : headerNames){
                 if(h == "") ofLogVerbose("ofxCsv")<<"csv has empty header names !";
             }
@@ -214,7 +214,7 @@ bool ofxCsv::createFile(const string &path) {
 
 //--------------------------------------------------
 void ofxCsv::load(const vector<ofxCsvRow> &rows, const vector<string> &_headerNames) {
-    ofLog()<<"ofxCsv::load(const vector<ofxCsvRow> &rows)";
+    ofLogVerbose("ofxCsv")<<"load(const vector<ofxCsvRow> &rows)";
 	clear();
 	data = rows;
     headerNames = _headerNames;
@@ -231,7 +231,7 @@ void ofxCsv::load(const vector<vector<string>> &rows, const vector<string> &_hea
 //--------------------------------------------------
 void ofxCsv::expand(int rows, int cols) {
     
-    ofLog()<<"ofxCsv::expand(int rows, int cols)";
+    ofLogVerbose("ofxCsv")<<"expand(int rows, int cols)";
     rows = max(rows, 0);
     if(data.empty()) {
         rows = max(rows, 1);
@@ -423,6 +423,13 @@ void ofxCsv::trim() {
 	for(int row = 0; row < data.size(); row++) {
 		data[row].trim();
 	}
+}
+
+//--------------------------------------------------
+void ofxCsv::toLowercase() {
+    for(int row = 0; row < data.size(); row++) {
+        data[row].toLowercase();
+    }
 }
 
 //--------------------------------------------------

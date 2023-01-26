@@ -248,7 +248,7 @@ public:
     
     /// Trim leading & trailing whitespace from all non-quoted fields.
     void trim();
-    
+    void toLowercase();
     /// Split a row string into fields.
     ///
     /// Uses the current field separator.

@@ -281,6 +281,9 @@ public:
     /// \returns trimmed string
     static string trimString(const string &s);
     
+    /// make all lower case
+    void toLowercase();
+    
     /// Split a row string into fields.
     ///
     /// \param row Row string to split.
