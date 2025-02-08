@@ -462,6 +462,17 @@ string ofxCsv::getComment() const {
 	return commentPrefix;
 }
 
+vector<string> ofxCsv::getHeaderNames() const {
+    return headerNames;
+}
+
+void ofxCsv::printHeaderNames(){
+    cout<<"printHeaderNames()"<<endl;
+    for(auto &name : headerNames){
+        cout<<name<<",";
+    }
+    cout<<endl;
+}
 // PROTECTED
 
 //--------------------------------------------------

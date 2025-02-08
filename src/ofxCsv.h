@@ -284,6 +284,9 @@ public:
     string getComment() const;
     
 //    map<string,ofxCsvRow> data_asMap;
+    
+    vector<string> getHeaderNames() const;
+    void printHeaderNames();
 protected:
     
     /// Expand to include a required row.

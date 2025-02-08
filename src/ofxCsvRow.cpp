@@ -38,7 +38,6 @@
 /// whitespace leading & trailing trim regular expression, from:
 // http://stackoverflow.com/questions/24048400/function-to-trim-leading-and-trailing-whitespace-in-vba
 static std::regex s_trimRegex = std::regex("^[\\s]+|[\\s]+$");
-
 //--------------------------------------------------
 ofxCsvRow::ofxCsvRow() {}
 
@@ -131,10 +130,11 @@ unsigned int ofxCsvRow::getNumCols() const {
 
 //--------------------------------------------------
 int ofxCsvRow::getInt_byName(string _columnName){
+    //TODO: make map search case insensitive by first setting header names to lowercase and then here setting each string to lowercase too
     if (data_asMap.find(_columnName) == data_asMap.end()) {
         ofLog()<<"ofxCsvRow::data_asMap.find(_columnName) == data_asMap.end()";
-        //change return 0 to return NULL since 0 could be a valid number
-        return NULL;
+        //TODO: change return 0 to return NULL since 0 could be a valid number
+        return 0;
     }
 //    ofLog()<<"data_asMap[_columnName] "<<data_asMap["a"];
     return ofToInt(data_asMap[_columnName]);
